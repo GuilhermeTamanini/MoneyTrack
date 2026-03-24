@@ -1,0 +1,73 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Tema visual
+LAYOUT_TOP_DOWN()
+skinparam backgroundColor #F7F9FB
+
+title Sistema de Controle Financeiro - Contexto
+
+Person(user, "Usuário", "Gerencia receitas, despesas e acompanha relatórios")
+
+System(system, "Sistema Financeiro Pessoal", "Aplicação web para controle financeiro com relatórios e saldo mensal")
+
+Rel(user, system, "Usa via navegador", "HTTPS")
+
+SHOW_LEGEND()
+@enduml
+
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_LEFT_RIGHT()
+skinparam backgroundColor #F7F9FB
+
+title Sistema de Controle Financeiro - Contêineres
+
+Person(user, "Usuário")
+
+System_Boundary(system, "Sistema Financeiro") {
+
+    Container(frontend, "Frontend", "React", "Interface web interativa\n- Cadastro de receitas/despesas\n- Visualização de relatórios")
+
+    Container(backend, "Backend API", "Rust", "API REST\n- Regras de negócio\n- Cálculo de saldo\n- Geração de relatórios")
+
+    ContainerDb(database, "Banco de Dados", "PostgreSQL", "Persistência de dados financeiros\n(ACID, confiável)")
+}
+
+Rel(user, frontend, "Acessa", "Browser")
+Rel(frontend, backend, "Requisições", "HTTPS / JSON")
+Rel(backend, database, "Consulta / Persistência", "SQL")
+
+SHOW_LEGEND()
+@enduml
+
+@startuml C4_Component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+skinparam backgroundColor #F7F9FB
+
+title Backend - Componentes (Rust)
+
+Container_Boundary(backend, "Backend API") {
+
+    Component(api, "API REST", "Controllers", "Recebe requisições HTTP\nValida e encaminha")
+
+    Component(service, "Services", "Camada de negócio", "Regras de negócio\nCálculo de saldo\nRelatórios")
+
+    Component(repo, "Repositories", "Persistência", "Acesso ao banco de dados")
+
+    Component(model, "Models", "Entidades", "Receita\nDespesa\nCategoria")
+}
+
+ContainerDb(database, "PostgreSQL", "Banco de dados")
+
+Rel(api, service, "Chama")
+Rel(service, repo, "Usa")
+Rel(repo, database, "SQL")
+Rel(service, model, "Manipula")
+Rel(repo, model, "Mapeia")
+
+SHOW_LEGEND()
+@enduml
