@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/Button';
 import { useCategories } from '@/hooks/useCategories';
 import type { NewCategory } from '@/types/category';
 
+// ─── Form ──────────────────────────────────────────────────────────────────────
+
 function CategoryForm({
   onSubmit,
   isSubmitting,
@@ -63,17 +65,34 @@ function CategoryForm({
   );
 }
 
+// ─── List ──────────────────────────────────────────────────────────────────────
+
 function CategoryList({
   categories,
   isLoading,
   error,
+  deletingId,
   onRetry,
+  onDelete,
 }: {
   categories: { id: number; name: string }[];
   isLoading: boolean;
   error: string | null;
+  deletingId: number | null;
   onRetry: () => void;
+  onDelete: (id: number) => Promise<void>;
 }) {
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+
+  function handleDeleteClick(id: number) {
+    setConfirmId(id);
+  }
+
+  async function handleConfirm(id: number) {
+    setConfirmId(null);
+    await onDelete(id);
+  }
+
   if (isLoading) {
     return (
       <div className="rounded-2xl border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
@@ -124,7 +143,47 @@ function CategoryList({
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-700 text-sm font-bold">
                 {cat.name.charAt(0).toUpperCase()}
               </div>
-              <p className="truncate text-sm font-semibold text-slate-800">{cat.name}</p>
+
+              <p className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800">
+                {cat.name}
+              </p>
+
+              {confirmId === cat.id ? (
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="text-xs text-slate-500">Confirmar?</span>
+                  <button
+                    onClick={() => handleConfirm(cat.id)}
+                    disabled={deletingId === cat.id}
+                    className="rounded-lg bg-red-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
+                  >
+                    Sim
+                  </button>
+                  <button
+                    onClick={() => setConfirmId(null)}
+                    className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-100"
+                  >
+                    Não
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleDeleteClick(cat.id)}
+                  disabled={deletingId === cat.id}
+                  className="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-60"
+                  title="Excluir categoria"
+                >
+                  {deletingId === cat.id ? (
+                    <span className="text-xs">...</span>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6M14 11v6" />
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                    </svg>
+                  )}
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -133,9 +192,20 @@ function CategoryList({
   );
 }
 
+// ─── Page ──────────────────────────────────────────────────────────────────────
+
 export default function CategoriesPage() {
-  const { categories, isLoading, isSubmitting, error, submitError, addCategory, refetch } =
-    useCategories();
+  const {
+    categories,
+    isLoading,
+    isSubmitting,
+    deletingId,
+    error,
+    submitError,
+    addCategory,
+    removeCategory,
+    refetch,
+  } = useCategories();
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(176,222,200,0.4),_transparent_35%),linear-gradient(180deg,_#f8fcfa_0%,_#eef6f1_100%)] px-6 py-16 text-slate-900">
@@ -154,7 +224,14 @@ export default function CategoriesPage() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <CategoryForm onSubmit={addCategory} isSubmitting={isSubmitting} submitError={submitError} />
-          <CategoryList categories={categories} isLoading={isLoading} error={error} onRetry={refetch} />
+          <CategoryList
+            categories={categories}
+            isLoading={isLoading}
+            error={error}
+            deletingId={deletingId}
+            onRetry={refetch}
+            onDelete={removeCategory}
+          />
         </div>
       </section>
     </main>

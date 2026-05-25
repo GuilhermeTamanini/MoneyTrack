@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Category, NewCategory } from '@/types/category';
-import { getCategories, createCategory } from '@/services/categoryService';
+import { getCategories, createCategory, deleteCategory } from '@/services/categoryService';
 
 interface UseCategoriesReturn {
   categories: Category[];
   isLoading: boolean;
   isSubmitting: boolean;
+  deletingId: number | null;
   error: string | null;
   submitError: string | null;
   addCategory: (data: NewCategory) => Promise<boolean>;
+  removeCategory: (id: number) => Promise<void>;
   refetch: () => Promise<void>;
 }
 
@@ -16,6 +18,7 @@ export function useCategories(): UseCategoriesReturn {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -51,13 +54,27 @@ export function useCategories(): UseCategoriesReturn {
     }
   }, []);
 
+  const removeCategory = useCallback(async (id: number): Promise<void> => {
+    try {
+      setDeletingId(id);
+      await deleteCategory(id);
+      setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir categoria');
+    } finally {
+      setDeletingId(null);
+    }
+  }, []);
+
   return {
     categories,
     isLoading,
     isSubmitting,
+    deletingId,
     error,
     submitError,
     addCategory,
+    removeCategory,
     refetch: fetchCategories,
   };
 }

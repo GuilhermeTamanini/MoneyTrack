@@ -16,3 +16,12 @@ pub async fn create_category(pool: &PgPool, payload: NewCategory) -> Result<Cate
     .fetch_one(pool)
     .await
 }
+
+pub async fn delete_category(pool: &PgPool, id: i64) -> Result<bool, sqlx::Error> {
+    let result = sqlx::query("DELETE FROM categories WHERE id = $1")
+        .bind(id)
+        .execute(pool)
+        .await?;
+
+    Ok(result.rows_affected() > 0)
+}

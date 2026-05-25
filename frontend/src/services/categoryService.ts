@@ -17,3 +17,10 @@ export async function createCategory(data: NewCategory): Promise<Category> {
   if (!response.ok) throw new Error('Erro ao criar categoria');
   return response.json();
 }
+
+export async function deleteCategory(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Erro ao excluir categoria');
+}

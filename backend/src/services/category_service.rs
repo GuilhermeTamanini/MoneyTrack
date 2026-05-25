@@ -10,3 +10,7 @@ pub async fn list_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error
 pub async fn add_category(pool: &PgPool, payload: NewCategory) -> Result<Category, sqlx::Error> {
     category_repository::create_category(pool, payload).await
 }
+
+pub async fn remove_category(pool: &PgPool, id: i64) -> Result<bool, sqlx::Error> {
+    category_repository::delete_category(pool, id).await
+}
