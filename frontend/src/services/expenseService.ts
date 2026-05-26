@@ -17,3 +17,10 @@ export async function createExpense(data: NewExpense): Promise<Expense> {
   if (!response.ok) throw new Error('Erro ao criar despesa');
   return response.json();
 }
+
+export async function deleteExpense(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Erro ao excluir despesa');
+}

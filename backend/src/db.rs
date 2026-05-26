@@ -29,8 +29,18 @@ pub async fn init_db(pool: &PgPool) -> Result<(), sqlx::Error> {
         CREATE TABLE IF NOT EXISTS expenses (
             id BIGSERIAL PRIMARY KEY,
             description TEXT NOT NULL,
-            amount DOUBLE PRECISION NOT NULL
+            amount DOUBLE PRECISION NOT NULL,
+            category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL
         );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE expenses
+        ADD COLUMN IF NOT EXISTS category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL;
         "#,
     )
     .execute(pool)

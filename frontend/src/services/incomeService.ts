@@ -17,3 +17,10 @@ export async function createIncome(data: NewIncome): Promise<Income> {
   if (!response.ok) throw new Error('Erro ao criar receita');
   return response.json();
 }
+
+export async function deleteIncome(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/incomes/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Erro ao excluir receita');
+}

@@ -108,14 +108,24 @@ function IncomeList({
   incomes,
   isLoading,
   error,
+  deletingId,
   onRetry,
+  onDelete,
 }: {
   incomes: Income[];
   isLoading: boolean;
   error: string | null;
+  deletingId: number | null;
   onRetry: () => void;
+  onDelete: (id: number) => Promise<void>;
 }) {
+  const [confirmId, setConfirmId] = useState<number | null>(null);
   const total = incomes.reduce((sum, inc) => sum + inc.amount, 0);
+
+  async function handleConfirm(id: number) {
+    setConfirmId(null);
+    await onDelete(id);
+  }
 
   if (isLoading) {
     return (
@@ -180,6 +190,32 @@ function IncomeList({
                 <span className="shrink-0 text-sm font-semibold text-brand-700">
                   {formatCurrency(inc.amount)}
                 </span>
+                {confirmId === inc.id ? (
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs text-slate-500">Confirmar?</span>
+                    <button
+                      onClick={() => handleConfirm(inc.id)}
+                      disabled={deletingId === inc.id}
+                      className="rounded-lg bg-red-500 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
+                    >
+                      Sim
+                    </button>
+                    <button
+                      onClick={() => setConfirmId(null)}
+                      className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-100"
+                    >
+                      Nao
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmId(inc.id)}
+                    disabled={deletingId === inc.id}
+                    className="shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold text-red-500 transition hover:bg-red-50 disabled:opacity-60"
+                  >
+                    {deletingId === inc.id ? '...' : 'Excluir'}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -192,7 +228,17 @@ function IncomeList({
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function IncomesPage() {
-  const { incomes, isLoading, isSubmitting, error, submitError, addIncome, refetch } = useIncomes();
+  const {
+    incomes,
+    isLoading,
+    isSubmitting,
+    deletingId,
+    error,
+    submitError,
+    addIncome,
+    removeIncome,
+    refetch,
+  } = useIncomes();
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(176,222,200,0.4),_transparent_35%),linear-gradient(180deg,_#f8fcfa_0%,_#eef6f1_100%)] px-6 py-16 text-slate-900">
@@ -211,7 +257,14 @@ export default function IncomesPage() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <IncomeForm onSubmit={addIncome} isSubmitting={isSubmitting} submitError={submitError} />
-          <IncomeList incomes={incomes} isLoading={isLoading} error={error} onRetry={refetch} />
+          <IncomeList
+            incomes={incomes}
+            isLoading={isLoading}
+            error={error}
+            deletingId={deletingId}
+            onRetry={refetch}
+            onDelete={removeIncome}
+          />
         </div>
       </section>
     </main>

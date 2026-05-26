@@ -17,3 +17,12 @@ pub async fn create_income(pool: &PgPool, payload: NewIncome) -> Result<Income, 
     .fetch_one(pool)
     .await
 }
+
+pub async fn delete_income(pool: &PgPool, id: i64) -> Result<bool, sqlx::Error> {
+    let result = sqlx::query("DELETE FROM incomes WHERE id = $1")
+        .bind(id)
+        .execute(pool)
+        .await?;
+
+    Ok(result.rows_affected() > 0)
+}

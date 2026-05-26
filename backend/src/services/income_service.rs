@@ -10,3 +10,7 @@ pub async fn list_incomes(pool: &PgPool) -> Result<Vec<Income>, sqlx::Error> {
 pub async fn add_income(pool: &PgPool, payload: NewIncome) -> Result<Income, sqlx::Error> {
     income_repository::create_income(pool, payload).await
 }
+
+pub async fn remove_income(pool: &PgPool, id: i64) -> Result<bool, sqlx::Error> {
+    income_repository::delete_income(pool, id).await
+}

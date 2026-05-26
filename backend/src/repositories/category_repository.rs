@@ -9,12 +9,10 @@ pub async fn get_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error>
 }
 
 pub async fn create_category(pool: &PgPool, payload: NewCategory) -> Result<Category, sqlx::Error> {
-    sqlx::query_as::<_, Category>(
-        "INSERT INTO categories (name) VALUES ($1) RETURNING id, name",
-    )
-    .bind(payload.name)
-    .fetch_one(pool)
-    .await
+    sqlx::query_as::<_, Category>("INSERT INTO categories (name) VALUES ($1) RETURNING id, name")
+        .bind(payload.name)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn delete_category(pool: &PgPool, id: i64) -> Result<bool, sqlx::Error> {

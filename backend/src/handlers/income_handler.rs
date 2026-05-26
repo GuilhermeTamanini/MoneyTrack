@@ -1,4 +1,8 @@
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 
 use crate::app_state::AppState;
 use crate::error::ApiError;
@@ -16,4 +20,16 @@ pub async fn create_income(
 ) -> Result<(StatusCode, Json<Income>), ApiError> {
     let created = income_service::add_income(&state.pool, payload).await?;
     Ok((StatusCode::CREATED, Json(created)))
+}
+
+pub async fn delete_income(
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<StatusCode, ApiError> {
+    let deleted = income_service::remove_income(&state.pool, id).await?;
+    if deleted {
+        Ok(StatusCode::NO_CONTENT)
+    } else {
+        Ok(StatusCode::NOT_FOUND)
+    }
 }

@@ -18,13 +18,13 @@ use db::init_db;
 use routes::category_routes::category_routes;
 use routes::expense_routes::expense_routes;
 use routes::income_routes::income_routes;
+use routes::report_routes::report_routes;
 
 #[tokio::main]
 async fn main() {
     // TODO needs to change to get from .env file
-    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://postgres:postgres@localhost:5432/moneytrack".to_string()
-    });
+    let database_url = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/moneytrack".to_string());
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -38,19 +38,18 @@ async fn main() {
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+        .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::OPTIONS])
         .allow_headers(Any);
 
     let app = Router::new()
         .merge(category_routes())
         .merge(expense_routes())
         .merge(income_routes())
+        .merge(report_routes())
         .layer(cors)
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     println!("Server running on http://localhost:3000");
 

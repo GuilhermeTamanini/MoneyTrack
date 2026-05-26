@@ -1,11 +1,17 @@
-use axum::{extract::{Path, State}, http::StatusCode, Json};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 
 use crate::app_state::AppState;
 use crate::error::ApiError;
 use crate::models::category::{Category, NewCategory};
 use crate::services::category_service;
 
-pub async fn get_categories(State(state): State<AppState>) -> Result<Json<Vec<Category>>, ApiError> {
+pub async fn get_categories(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<Category>>, ApiError> {
     let categories = category_service::list_categories(&state.pool).await?;
     Ok(Json(categories))
 }
