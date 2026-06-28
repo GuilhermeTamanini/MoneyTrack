@@ -5,7 +5,7 @@ import type { NewCategory } from '@/types/category';
 
 // ─── Form ──────────────────────────────────────────────────────────────────────
 
-function CategoryForm({
+export function CategoryForm({
   onSubmit,
   isSubmitting,
   submitError,
@@ -67,7 +67,7 @@ function CategoryForm({
 
 // ─── List ──────────────────────────────────────────────────────────────────────
 
-function CategoryList({
+export function CategoryList({
   categories,
   isLoading,
   error,

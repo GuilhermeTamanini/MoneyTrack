@@ -12,7 +12,7 @@ function formatCurrency(value: number): string {
 
 // ─── Form ──────────────────────────────────────────────────────────────────────
 
-function IncomeForm({
+export function IncomeForm({
   onSubmit,
   isSubmitting,
   submitError,
@@ -104,7 +104,7 @@ function IncomeForm({
 
 // ─── List ──────────────────────────────────────────────────────────────────────
 
-function IncomeList({
+export function IncomeList({
   incomes,
   isLoading,
   error,

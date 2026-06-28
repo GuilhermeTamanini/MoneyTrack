@@ -9,7 +9,7 @@ function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function ExpenseForm({
+export function ExpenseForm({
   categories,
   isCategoriesLoading,
   onSubmit,
@@ -142,7 +142,7 @@ function ExpenseForm({
   );
 }
 
-function ExpenseList({
+export function ExpenseList({
   expenses,
   isLoading,
   error,
